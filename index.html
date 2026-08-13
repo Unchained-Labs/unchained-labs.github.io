@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unchained Labs — infrastructure for agent graphs</title>
+<meta name="description" content="Lint the spec, price the run, measure the verifiers. Five tools that make running many agents in parallel affordable and correct.">
+<meta property="og:title" content="Unchained Labs — infrastructure for agent graphs">
+<meta property="og:description" content="Lint the spec, price the run, measure the verifiers. Five tools for agent graphs.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://unchained-labs.github.io/">
+<meta name="theme-color" content="#0F1419">
+<link rel="icon" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/brand.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* page-local layout — the landing page is the one page with its own shape */
+  .hero-wide h1 { max-width: 30ch; }
+  .tool { border-top: 1px solid var(--ul-line); padding: var(--ul-space-16) 0; }
+  .tool:first-of-type { border-top: 0; }
+  .tool-head { display: flex; align-items: baseline; gap: var(--ul-space-4); flex-wrap: wrap; margin-bottom: var(--ul-space-2); }
+  .tool-head h2 { margin: 0; font-family: var(--ul-font-mono); font-weight: 500; font-size: var(--ul-text-2xl); color: var(--ul-accent); letter-spacing: 0; }
+  .tool-head .stat-line { font-family: var(--ul-font-mono); font-size: var(--ul-text-xs); color: var(--ul-faint); }
+  .tool-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: var(--ul-space-8); align-items: start; }
+  @media (max-width: 900px) { .tool-grid { grid-template-columns: 1fr; } }
+  .tool-grid .demo { margin-bottom: 0; }
+  .pipeline { background: var(--ul-bg-raised); border: 1px solid var(--ul-line); border-radius: var(--ul-radius-lg); padding: var(--ul-space-8) var(--ul-space-6); }
+  .pipeline pre.mermaid { background: none; border: 0; padding: 0; text-align: center; }
+  .argue { counter-reset: a; list-style: none; padding: 0; margin: 0; }
+  .argue li { counter-increment: a; position: relative; padding-left: 3.2rem; margin-bottom: var(--ul-space-5, 1.25rem); }
+  .argue li::before {
+    content: counter(a);
+    position: absolute; left: 0; top: -0.15em;
+    font-family: var(--ul-font-mono); font-size: var(--ul-text-lg);
+    color: var(--ul-accent); opacity: 0.75;
+  }
+  .foot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--ul-space-6); }
+  .foot-grid h4 { font-size: var(--ul-text-xs); text-transform: uppercase; letter-spacing: var(--ul-track-label); color: var(--ul-faint); margin-bottom: var(--ul-space-3); font-family: var(--ul-font-display); }
+  .foot-grid a { display: block; margin-bottom: var(--ul-space-2); font-size: var(--ul-text-sm); border: 0; color: var(--ul-muted); }
+  .foot-grid a:hover { color: var(--ul-accent); }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Unchained Labs">
+      <img src="assets/lockup-horizontal.svg" alt="Unchained Labs" style="height:22px">
+    </a>
+    <nav>
+      <a href="#tools">Tools</a>
+      <a href="#pipeline">How they fit</a>
+      <a href="#argument">The argument</a>
+      <a href="https://github.com/Unchained-Labs">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero hero-wide">
+  <div class="wrap">
+    <p class="label">Unchained Labs</p>
+    <h1>Linear execution is a chain. The work is actually a graph.</h1>
+    <p class="lead">Running many agents in parallel is a capability most people now
+    have. Running them <em>affordably and correctly</em> is a systems problem, and
+    it is mostly unbuilt — nothing prices a workflow before it runs, nothing checks
+    whether your verifiers are independent, nothing lints the spec for the handful
+    of mistakes everyone makes.</p>
+    <ul class="badges">
+      <li class="badge accent">5 tools</li>
+      <li class="badge up">226 tests passing</li>
+      <li class="badge up">CI green on every repo</li>
+      <li class="badge">MIT</li>
+      <li class="badge warn">alpha</li>
+    </ul>
+    <div class="btn-row">
+      <a class="btn primary" href="#tools">See the tools</a>
+      <a class="btn" href="https://github.com/Unchained-Labs">GitHub</a>
+      <a class="btn" href="https://unchained-labs.github.io/branding/">Brand</a>
+    </div>
+
+    <figure class="demo hero-demo">
+      <video src="assets/video/graphlint.mp4" poster="assets/video/graphlint-poster.jpg"
+             autoplay loop muted playsinline preload="auto"
+             aria-label="graphlint finding bugs in an agent workflow spec"></video>
+      <figcaption><code>graphlint</code> — real output, 16 rules, zero tokens. Every video on this page is real CLI output.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="pipeline">
+  <div class="wrap">
+    <p class="label">How they fit</p>
+    <h2>Four questions you currently cannot answer</h2>
+    <div class="pipeline">
+      <pre class="mermaid">flowchart LR
+  H["workflow-hub<br><small>get a graph</small>"] --> G["graphlint<br><small>is it correct?</small>"]
+  G --> P["preflight<br><small>what will it cost?</small>"]
+  P --> R(["run it"])
+  R --> D["decorrelate<br><small>were the verifiers independent?</small>"]
+  D -.->|tune the lenses| G
+  A["authsweep<br><small>a graph worth running</small>"] --> G</pre>
+    </div>
+    <div class="grid two" style="margin-top:var(--ul-space-6)">
+      <div class="card"><h3>Before you write it</h3><p>Start from a graph that already works, instead of the shape you happen to reach for first.</p></div>
+      <div class="card"><h3>Before you merge it</h3><p>Does it contain the mistakes everyone makes? A barrier that waits for nothing, three verifiers that fail together, a cycle that never converges.</p></div>
+      <div class="card"><h3>Before you run it</h3><p>What will this cost, and which stage dominates? Most people size the fan-out and are surprised by verification.</p></div>
+      <div class="card"><h3>After you run it</h3><p>Did the verification you paid for actually buy anything, or did you pay three times for one check?</p></div>
+    </div>
+    <div class="note" style="margin-top:var(--ul-space-6)">
+      <p><strong>The family is self-consistent, and that is enforced rather than
+      claimed.</strong> <code>authsweep</code> emits a verify graph that
+      <code>graphlint</code> lints clean and <code>preflight</code> prices at 25
+      agents for $0.36, and every workflow in <code>workflow-hub</code> passes
+      <code>graphlint</code> with zero findings. CI fails if any of that stops
+      being true.</p>
+    </div>
+  </div>
+</section>
+
+<section id="tools" style="padding-bottom:0">
+  <div class="wrap">
+    <p class="label">The tools</p>
+    <h2>Five, and a brand system</h2>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <article class="tool">
+    <div class="tool-head">
+      <h2>graphlint</h2>
+      <span class="stat-line">16 rules · 57 tests · SARIF</span>
+    </div>
+    <div class="tool-grid">
+      <div>
+        <p><strong>Static analyzer for agent workflow specs.</strong> Catches
+        barrier misuse, correlated verifiers, missing schemas and non-terminating
+        cycles — before a token is spent.</p>
+        <p class="muted">Two front-ends: imperative workflow scripts parsed with a
+        real JS parser, and declarative graph specs. Both compile to one IR, which
+        is why a rule written for either works on the other.</p>
+        <div class="btn-row">
+          <a class="btn primary" href="https://unchained-labs.github.io/graphlint/">Docs</a>
+          <a class="btn" href="https://github.com/Unchained-Labs/graphlint">Source</a>
+        </div>
+      </div>
+      <figure class="demo">
+        <video src="assets/video/graphlint.mp4" poster="assets/video/graphlint-poster.jpg"
+               loop muted playsinline preload="none" data-lazyplay
+               aria-label="graphlint terminal demo"></video>
+      </figure>
+    </div>
+  </article>
+
+  <article class="tool">
+    <div class="tool-head">
+      <h2>preflight</h2>
+      <span class="stat-line">49 tests · GitHub Action</span>
+    </div>
+    <div class="tool-grid">
+      <div>
+        <p><strong>Prices a workflow before it runs</strong> and comments the
+        predicted agent count and dollar cost on the PR that changed it.
+        Dependabot, but for agent spend.</p>
+        <p class="muted">Every assumption is printed and overridable, and the
+        output is a range with assumed counts marked — emitting a point estimate
+        would imply a precision the input does not contain.</p>
+        <div class="btn-row">
+          <a class="btn primary" href="https://unchained-labs.github.io/preflight/">Docs</a>
+          <a class="btn" href="https://github.com/Unchained-Labs/preflight">Source</a>
+        </div>
+      </div>
+      <figure class="demo">
+        <video src="assets/video/preflight.mp4" poster="assets/video/preflight-poster.jpg"
+               loop muted playsinline preload="none" data-lazyplay
+               aria-label="preflight terminal demo"></video>
+      </figure>
+    </div>
+  </article>
+
+  <article class="tool">
+    <div class="tool-head">
+      <h2>decorrelate</h2>
+      <span class="stat-line">49 tests · verified vs published examples</span>
+    </div>
+    <div class="tool-grid">
+      <div>
+        <p><strong>Measures whether your verifiers are actually independent.</strong>
+        Three skeptics that share a model and a prompt are one check at 3× the
+        price — this puts a number on it.</p>
+        <p class="muted">The number is <code>N_eff</code>, via Kish's design
+        effect. The statistics reproduce the canonical Fleiss worked example to
+        three decimals on all three published figures, because a tool whose whole
+        value is a number has to be right about the number.</p>
+        <div class="btn-row">
+          <a class="btn primary" href="https://unchained-labs.github.io/decorrelate/">Docs</a>
+          <a class="btn" href="https://github.com/Unchained-Labs/decorrelate">Source</a>
+        </div>
+      </div>
+      <figure class="demo">
+        <video src="assets/video/decorrelate.mp4" poster="assets/video/decorrelate-poster.jpg"
+               loop muted playsinline preload="none" data-lazyplay
+               aria-label="decorrelate terminal demo"></video>
+      </figure>
+    </div>
+  </article>
+
+  <article class="tool">
+    <div class="tool-head">
+      <h2>authsweep</h2>
+      <span class="stat-line">51 tests · zero tokens · SARIF</span>
+    </div>
+    <div class="tool-grid">
+      <div>
+        <p><strong>Finds route handlers with no authorization check.</strong>
+        Deterministic, no network, evidence on every finding.</p>
+        <p class="muted">The prefilter is the point: on the fixtures it drops 16 of
+        25 routes before any agent runs, including everything under a router-level
+        guard. The paid verify stage is opt-in — it hands you the graph instead of
+        spending on your behalf.</p>
+        <div class="btn-row">
+          <a class="btn primary" href="https://unchained-labs.github.io/authsweep/">Docs</a>
+          <a class="btn" href="https://github.com/Unchained-Labs/authsweep">Source</a>
+        </div>
+      </div>
+      <figure class="demo">
+        <video src="assets/video/authsweep.mp4" poster="assets/video/authsweep-poster.jpg"
+               loop muted playsinline preload="none" data-lazyplay
+               aria-label="authsweep terminal demo"></video>
+      </figure>
+    </div>
+  </article>
+
+  <article class="tool">
+    <div class="tool-head">
+      <h2>workflow-hub</h2>
+      <span class="stat-line">6 workflows · 20 tests · all lint clean</span>
+    </div>
+    <div class="tool-grid">
+      <div>
+        <p><strong>Six agent workflows worth copying,</strong> one per shape. You
+        own the file after it lands.</p>
+        <p class="muted">No runtime dependency, no version to keep in sync, and
+        deliberately no update command — editing the file is the point. A registry
+        that keeps ownership of the code it hands you is a framework.</p>
+        <div class="btn-row">
+          <a class="btn primary" href="https://unchained-labs.github.io/workflow-hub/">Docs</a>
+          <a class="btn" href="https://github.com/Unchained-Labs/workflow-hub">Source</a>
+        </div>
+      </div>
+      <figure class="demo">
+        <video src="assets/video/workflow-hub.mp4" poster="assets/video/workflow-hub-poster.jpg"
+               loop muted playsinline preload="none" data-lazyplay
+               aria-label="workflow-hub terminal demo"></video>
+      </figure>
+    </div>
+  </article>
+
+  <article class="tool">
+    <div class="tool-head">
+      <h2>branding</h2>
+      <span class="stat-line">43 contrast claims verified · v1</span>
+    </div>
+    <div class="tool-grid">
+      <div>
+        <p><strong>The brand system.</strong> Chain Teal on Midnight Navy —
+        measured contrast, computed mark geometry, and docs that are tested against
+        the measurement.</p>
+        <p class="muted">That last part exists because the ratios in
+        <code>palette.md</code> were wrong twice while it was being written:
+        estimated by eye, then stated in a table as if measured. A brand doc that
+        asserts a wrong ratio is worse than one that asserts none.</p>
+        <div class="btn-row">
+          <a class="btn primary" href="https://unchained-labs.github.io/branding/">Docs</a>
+          <a class="btn" href="https://github.com/Unchained-Labs/branding">Source</a>
+        </div>
+      </div>
+      <figure class="demo">
+        <video src="assets/video/branding.mp4" poster="assets/video/branding-poster.jpg"
+               loop muted playsinline preload="none" data-lazyplay
+               aria-label="branding terminal demo"></video>
+      </figure>
+    </div>
+  </article>
+
+</div>
+
+<section id="argument">
+  <div class="wrap">
+    <p class="label">The argument</p>
+    <h2>Six lines the tools enforce mechanically</h2>
+    <ol class="argue narrow" style="margin-top:var(--ul-space-8)">
+      <li><strong>An edge is data moving, not order.</strong> Most "and then" in an
+      agent script carries nothing and is pure wasted latency.</li>
+      <li><strong>The plan lives in code you own; the judgment lives in the
+      model.</strong> Anything a model decides that could have been code is a
+      reliability bug you chose to ship.</li>
+      <li><strong>Reduce steps are free.</strong> Spawning an agent to "combine the
+      results" is <code>flatMap</code> and a <code>Set</code> — deterministic,
+      instant, zero tokens.</li>
+      <li><strong>Stream by default.</strong> A barrier makes everything wait for
+      the slowest node. Use one only for a true cross-set dependency, and write the
+      reason down.</li>
+      <li><strong>Verification is usually the biggest line item</strong>, and it is
+      findings × lenses, not fan-out width. Everyone sizes the wrong term.</li>
+      <li><strong>N identical verifiers are one verifier counted N times.</strong>
+      Vary the lens, vary the model, or use an executable oracle.</li>
+    </ol>
+    <p class="narrow muted" style="margin-top:var(--ul-space-6)">Each tool enforces
+    a subset of that in CI, so it stops being advice.</p>
+  </div>
+</section>
+
+<section id="honest">
+  <div class="wrap">
+    <p class="label">Honestly</p>
+    <h2>What is not true yet</h2>
+    <div class="note warn">
+      <p><strong>Everything is alpha, and the npm packages are not published.</strong>
+      The install lines in the READMEs will not work until they are. Clone and
+      build, or wait.</p>
+      <p><strong>The heuristics will produce false positives.</strong>
+      <code>graphlint</code>'s barrier rule misreads barriers that are load-bearing
+      for reasons outside the file; <code>authsweep</code> is explicitly not a taint
+      analyser. Both document this, and both let you turn a rule off rather than
+      work around it.</p>
+      <p><strong><code>preflight</code>'s defaults are generic.</strong>
+      Uncalibrated, trust the shape — which stage dominates — far more than the
+      absolute figure.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="wrap" style="display:block">
+    <div class="foot-grid" style="margin-bottom:var(--ul-space-8)">
+      <div>
+        <h4>Tools</h4>
+        <a href="https://unchained-labs.github.io/graphlint/">graphlint</a>
+        <a href="https://unchained-labs.github.io/preflight/">preflight</a>
+        <a href="https://unchained-labs.github.io/decorrelate/">decorrelate</a>
+        <a href="https://unchained-labs.github.io/authsweep/">authsweep</a>
+        <a href="https://unchained-labs.github.io/workflow-hub/">workflow-hub</a>
+      </div>
+      <div>
+        <h4>Org</h4>
+        <a href="https://github.com/Unchained-Labs">GitHub</a>
+        <a href="https://unchained-labs.github.io/branding/">Brand system</a>
+        <a href="https://github.com/Unchained-Labs/.github/blob/main/CONTRIBUTING.md">Contributing</a>
+        <a href="https://github.com/Unchained-Labs/.github/blob/main/SECURITY.md">Security</a>
+      </div>
+      <div>
+        <h4>Also here</h4>
+        <a href="https://github.com/Unchained-Labs/kymatics">Kymatics</a>
+        <a href="https://github.com/Unchained-Labs/otter">Otter</a>
+        <a href="https://github.com/Unchained-Labs/lavoix">Lavoix</a>
+        <a href="https://github.com/Unchained-Labs/seal">Seal</a>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:var(--ul-space-4);align-items:center;border-top:1px solid var(--ul-line);padding-top:var(--ul-space-6)">
+      <span>Unchained Labs · MIT</span>
+      <span style="margin-left:auto"><a href="https://github.com/guilyx">Erwin Lejeune</a></span>
+    </div>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      background: "#171D26", primaryColor: "#0F1419",
+      primaryTextColor: "#E8EDF2", primaryBorderColor: "#313B47",
+      lineColor: "#00A888", secondaryColor: "#171D26", tertiaryColor: "#171D26",
+      fontFamily: "JetBrains Mono, monospace", fontSize: "14px",
+    },
+  });
+</script>
+
+<script>
+  // Six autoplaying videos would be ~1.9MB on load, so the per-tool ones use
+  // preload="none" and a poster, and only start once they are actually on screen.
+  // Anyone who has asked for reduced motion gets the posters and nothing moving.
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const lazy = document.querySelectorAll("video[data-lazyplay]");
+
+  if (reduce.matches) {
+    document.querySelectorAll("video").forEach((v) => {
+      v.removeAttribute("autoplay");
+      v.pause();
+    });
+  } else if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          const v = e.target;
+          if (e.isIntersecting) {
+            v.preload = "auto";
+            v.play().catch(() => {});   // a blocked autoplay is not an error
+          } else {
+            v.pause();
+          }
+        }
+      },
+      { rootMargin: "150px 0px", threshold: 0.25 },
+    );
+    lazy.forEach((v) => io.observe(v));
+  } else {
+    // No IntersectionObserver: just let them load and play.
+    lazy.forEach((v) => {
+      v.preload = "auto";
+      v.play().catch(() => {});
+    });
+  }
+</script>
+
+</body>
+</html>
