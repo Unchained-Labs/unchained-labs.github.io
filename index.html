@@ -89,7 +89,7 @@
     bugs in the product <em>and</em> two in the security scanner itself.</p>
     <ul class="badges">
       <li class="badge accent">1 product · 5 tools</li>
-      <li class="badge up">260 tests passing</li>
+      <li class="badge up">284 tests passing</li>
       <li class="badge up">CI green on every repo</li>
       <li class="badge">MIT</li>
       <li class="badge warn">alpha</li>
@@ -247,7 +247,7 @@
   <article class="tool">
     <div class="tool-head">
       <h2>preflight</h2>
-      <span class="stat-line">53 tests · GitHub Action</span>
+      <span class="stat-line">77 tests · GitHub Action</span>
     </div>
     <div class="tool-grid">
       <div>
@@ -256,7 +256,10 @@
         Dependabot, but for agent spend.</p>
         <p class="muted">Every assumption is printed and overridable, and the
         output is a range with assumed counts marked — emitting a point estimate
-        would imply a precision the input does not contain.</p>
+        would imply a precision the input does not contain. <code>preflight
+        calibrate</code> replaces the guessed token profiles with medians measured
+        from your own runs, and refuses to invent the one number it cannot
+        measure.</p>
         <div class="btn-row">
           <a class="btn primary" href="https://unchained-labs.github.io/preflight/">Docs</a>
           <a class="btn" href="https://github.com/Unchained-Labs/preflight">Source</a>
@@ -399,10 +402,12 @@
           </tr>
           <tr>
             <td>preflight</td><td>Otter</td><td class="mark">✅</td>
-            <td><code>preflight models --format otter-env</code> now feeds Otter's
-            price list, so cost is quoted from one CI-checked table instead of two.
-            The unbuilt half — Otter's measured spans calibrating preflight's
-            generic profiles — is the highest-value next step.</td>
+            <td>Both directions. <code>preflight models --format otter-env</code>
+            feeds Otter's price list, so cost is quoted from one CI-checked table
+            instead of two — and <code>preflight calibrate</code> reads Otter's
+            measured per-job usage back, replacing the guessed token profiles with
+            what our own runs actually cost. Prices flow out, measurements flow
+            in.</td>
           </tr>
           <tr>
             <td>decorrelate</td><td>Otter evals</td><td class="mark">➖</td>
@@ -487,10 +492,13 @@
       for reasons outside the file; <code>authsweep</code> is explicitly not a taint
       analyser. Both document this, and both let you turn a rule off rather than
       work around it.</p>
-      <p><strong><code>preflight</code>'s defaults are generic.</strong>
-      Uncalibrated, trust the shape — which stage dominates — far more than the
-      absolute figure. Calibrating it against Otter's measured spans is the
-      obvious fix and is not built yet.</p>
+      <p><strong><code>preflight</code>'s defaults are generic until you
+      calibrate.</strong> Uncalibrated, trust the shape — which stage dominates —
+      far more than the absolute figure. <code>preflight calibrate</code> fixes the
+      token counts from your own usage rows, but it cannot recover a
+      <em>cache hit rate</em>, and that is the assumption the total is most
+      sensitive to. It stays a declared guess rather than a fabricated
+      measurement.</p>
       <p><strong><code>authsweep</code> reads JS/TS, Python and Rust.</strong> Go,
       Ruby, Java, PHP and C# are invisible to it. It says so loudly instead of
       exiting green on an unscanned codebase — but a warning is not coverage. The
