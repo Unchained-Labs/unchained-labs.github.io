@@ -85,11 +85,11 @@
     lints the graph, one prices it, one measures whether the verification bought
     anything.</p>
     <p class="lead muted">The second half exists because of the first. And when we
-    pointed the tools <a href="#dogfood">back at our own stack</a>, two of them
-    found real bugs — including two in the security scanner itself.</p>
+    pointed the tools <a href="#dogfood">back at our own stack</a> they found real
+    bugs in the product <em>and</em> two in the security scanner itself.</p>
     <ul class="badges">
       <li class="badge accent">1 product · 5 tools</li>
-      <li class="badge up">237 tests passing</li>
+      <li class="badge up">260 tests passing</li>
       <li class="badge up">CI green on every repo</li>
       <li class="badge">MIT</li>
       <li class="badge warn">alpha</li>
@@ -104,7 +104,7 @@
       <video src="assets/video/org-promo.mp4" poster="assets/video/org-promo-poster.jpg"
              loop muted playsinline preload="auto" data-lazyplay
              aria-label="The Unchained Labs stack: Kymatics running agent jobs, and the tools that keep them correct"></video>
-      <figcaption>The whole lab in 70 seconds. Every frame is real CLI output — including the two bugs the tools found in our own product.</figcaption>
+      <figcaption>The whole lab in 76 seconds. Every frame is real CLI output — including the unauthenticated shell endpoint on our own control plane, and the two false cleans the scanner had to be fixed for.</figcaption>
     </figure>
   </div>
 </section>
@@ -300,12 +300,12 @@
   <article class="tool">
     <div class="tool-head">
       <h2>authsweep</h2>
-      <span class="stat-line">58 tests · zero tokens · SARIF</span>
+      <span class="stat-line">81 tests · 8 routers · zero tokens · SARIF</span>
     </div>
     <div class="tool-grid">
       <div>
         <p><strong>Finds route handlers with no authorization check.</strong>
-        Deterministic, no network, evidence on every finding.</p>
+        Across JS/TS, Python and Rust — Express, Fastify, Koa, FastAPI, Flask, axum, actix-web, rocket. Deterministic, no network, evidence on every finding.</p>
         <p class="muted">The prefilter is the point: on the fixtures it drops 16 of
         25 routes before any agent runs, including everything under a router-level
         guard. The paid verify stage is opt-in — it hands you the graph instead of
@@ -415,17 +415,19 @@
             and a single-prompt job is not a graph.</td>
           </tr>
           <tr>
-            <td>authsweep</td><td>Otter</td><td class="mark">❌</td>
-            <td>Blocked. Otter is axum, and authsweep does not read Rust, so the
-            control plane is invisible to it.</td>
+            <td>authsweep</td><td>Otter</td><td class="mark">✅</td>
+            <td>38 routes, 3 <code>high</code>, and no authorization anywhere: two
+            endpoints that accept a command and run it in a workspace, plus a shell
+            over a websocket. All of it invisible until the tool learned to read
+            Rust — which it did <em>because of</em> this exercise.</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div class="note warn" style="margin-top:var(--ul-space-8)">
-      <p><strong>Two of five helped — and the most valuable result was not an
-      integration at all.</strong> Pointing a security scanner at our own code found
+      <p><strong>Three of five help — and the most valuable result was still not an
+      integration.</strong> Pointing a security scanner at our own code found
       <em>two bugs in the scanner</em>, both of the one class its own threat model
       calls the worst: a false clean.</p>
       <p>Against Lavoix it read <code>Depends(get_service)</code> — dependency
@@ -435,7 +437,10 @@
       pass too.</p>
       <p>Neither was reachable from its fixtures, because the fixtures were written
       by the same person as the rules and inherited the same blind spots. Real code
-      had shapes the author did not think to invent.</p>
+      had shapes the author did not think to invent — and fixing the second one
+      surfaced three more defects, including a severity model that could not tell
+      remote code execution from a record insert. The two <code>➖</code> rows above
+      are the reason you can believe the three <code>✅</code> ones.</p>
       <div class="btn-row">
         <a class="btn primary" href="https://github.com/Unchained-Labs/.github/blob/main/docs/kymatics-and-the-graph-tools.md">Read the full analysis</a>
       </div>
@@ -486,10 +491,12 @@
       Uncalibrated, trust the shape — which stage dominates — far more than the
       absolute figure. Calibrating it against Otter's measured spans is the
       obvious fix and is not built yet.</p>
-      <p><strong><code>authsweep</code> reads JS/TS and Python only.</strong> A
-      Rust, Go, Ruby or Java service is invisible to it. It now says so loudly
-      instead of exiting green on an unscanned codebase — but that is a warning, not
-      coverage.</p>
+      <p><strong><code>authsweep</code> reads JS/TS, Python and Rust.</strong> Go,
+      Ruby, Java, PHP and C# are invisible to it. It says so loudly instead of
+      exiting green on an unscanned codebase — but a warning is not coverage. The
+      Rust front-end is also token-structural rather than parser-based: a router
+      composed across files keeps its own path and loses the prefix applied
+      elsewhere.</p>
     </div>
   </div>
 </section>
