@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Unchained Labs — infrastructure for agent graphs</title>
-<meta name="description" content="Lint the spec, price the run, measure the verifiers. Five tools that make running many agents in parallel affordable and correct.">
-<meta property="og:title" content="Unchained Labs — infrastructure for agent graphs">
-<meta property="og:description" content="Lint the spec, price the run, measure the verifiers. Five tools for agent graphs.">
+<title>Unchained Labs — an agentic lab</title>
+<meta name="description" content="An agentic lab. Kymatics turns spoken intent into queued agent jobs; five tools keep those graphs correct and affordable. Everything public, every number measured.">
+<meta property="og:title" content="Unchained Labs — an agentic lab">
+<meta property="og:description" content="Kymatics runs agent graphs. Five tools keep them correct and affordable. Both halves public.">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://unchained-labs.github.io/assets/video/org-promo-poster.jpg">
 <meta property="og:url" content="https://unchained-labs.github.io/">
 <meta name="theme-color" content="#0F1419">
 <link rel="icon" href="assets/favicon.svg">
@@ -41,6 +42,17 @@
   .foot-grid h4 { font-size: var(--ul-text-xs); text-transform: uppercase; letter-spacing: var(--ul-track-label); color: var(--ul-faint); margin-bottom: var(--ul-space-3); font-family: var(--ul-font-display); }
   .foot-grid a { display: block; margin-bottom: var(--ul-space-2); font-size: var(--ul-text-sm); border: 0; color: var(--ul-muted); }
   .foot-grid a:hover { color: var(--ul-accent); }
+  /* Kymatics service cards: a name, a one-liner, a stack line, two links */
+  .svc { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: var(--ul-space-5, 1.25rem); }
+  .svc .card h3 { font-family: var(--ul-font-mono); font-weight: 500; color: var(--ul-accent); margin-bottom: var(--ul-space-2); }
+  .svc .card .stack { font-family: var(--ul-font-mono); font-size: var(--ul-text-xs); color: var(--ul-faint); display: block; margin: var(--ul-space-3) 0; }
+  /* dogfood table — the verdict column carries the meaning, so it is monospaced */
+  .verdict-wrap { overflow-x: auto; }
+  .verdict { width: 100%; border-collapse: collapse; font-size: var(--ul-text-sm); }
+  .verdict th, .verdict td { text-align: left; padding: var(--ul-space-3) var(--ul-space-4); border-bottom: 1px solid var(--ul-line); vertical-align: top; }
+  .verdict th { font-size: var(--ul-text-xs); text-transform: uppercase; letter-spacing: var(--ul-track-label); color: var(--ul-faint); font-weight: 500; }
+  .verdict td:first-child { font-family: var(--ul-font-mono); color: var(--ul-heading); white-space: nowrap; }
+  .verdict td.mark { font-family: var(--ul-font-mono); text-align: center; }
 </style>
 </head>
 <body>
@@ -51,8 +63,9 @@
       <img src="assets/lockup-horizontal.svg" alt="Unchained Labs" style="height:22px">
     </a>
     <nav>
+      <a href="#kymatics">Kymatics</a>
       <a href="#tools">Tools</a>
-      <a href="#pipeline">How they fit</a>
+      <a href="#dogfood">Dogfooding</a>
       <a href="#argument">The argument</a>
       <a href="https://github.com/Unchained-Labs">GitHub</a>
     </nav>
@@ -63,39 +76,111 @@
 
 <section class="hero hero-wide">
   <div class="wrap">
-    <p class="label">Unchained Labs</p>
-    <h1>Linear execution is a chain. The work is actually a graph.</h1>
-    <p class="lead">Running many agents in parallel is a capability most people now
-    have. Running them <em>affordably and correctly</em> is a systems problem, and
-    it is mostly unbuilt — nothing prices a workflow before it runs, nothing checks
-    whether your verifiers are independent, nothing lints the spec for the handful
-    of mistakes everyone makes.</p>
+    <p class="label">Unchained Labs — an agentic lab</p>
+    <h1>Two halves of one bet: agent work is a graph, not a chat.</h1>
+    <p class="lead"><a href="#kymatics">Kymatics</a> is the product — speak an
+    intent, and it becomes a queued agent job that runs in an isolated workspace
+    and streams the build back to you. <a href="#tools">The five tools</a> are
+    what we built after running enough of those to know where it goes wrong: one
+    lints the graph, one prices it, one measures whether the verification bought
+    anything.</p>
+    <p class="lead muted">The second half exists because of the first. And when we
+    pointed the tools <a href="#dogfood">back at our own stack</a>, two of them
+    found real bugs — including two in the security scanner itself.</p>
     <ul class="badges">
-      <li class="badge accent">5 tools</li>
-      <li class="badge up">226 tests passing</li>
+      <li class="badge accent">1 product · 5 tools</li>
+      <li class="badge up">237 tests passing</li>
       <li class="badge up">CI green on every repo</li>
       <li class="badge">MIT</li>
       <li class="badge warn">alpha</li>
     </ul>
     <div class="btn-row">
-      <a class="btn primary" href="#tools">See the tools</a>
+      <a class="btn primary" href="#kymatics">The product</a>
+      <a class="btn" href="#tools">The tools</a>
       <a class="btn" href="https://github.com/Unchained-Labs">GitHub</a>
-      <a class="btn" href="https://unchained-labs.github.io/branding/">Brand</a>
     </div>
 
     <figure class="demo hero-demo">
-      <video src="assets/video/graphlint.mp4" poster="assets/video/graphlint-poster.jpg"
+      <video src="assets/video/org-promo.mp4" poster="assets/video/org-promo-poster.jpg"
              loop muted playsinline preload="auto" data-lazyplay
-             aria-label="graphlint finding bugs in an agent workflow spec"></video>
-      <figcaption><code>graphlint</code> — real output, 16 rules, zero tokens. Every video on this page is real CLI output.</figcaption>
+             aria-label="The Unchained Labs stack: Kymatics running agent jobs, and the tools that keep them correct"></video>
+      <figcaption>The whole lab in 70 seconds. Every frame is real CLI output — including the two bugs the tools found in our own product.</figcaption>
     </figure>
+  </div>
+</section>
+
+<section id="kymatics">
+  <div class="wrap">
+    <p class="label">The product</p>
+    <h2>Kymatics — speak an intent, get a built thing</h2>
+    <p class="lead narrow">A voice-first pipeline that turns spoken work into
+    queued agent jobs, runs each one in an isolated workspace, and streams the
+    build back live. Three services, all public, all deployed.</p>
+
+    <div class="pipeline" style="margin:var(--ul-space-8) 0">
+      <pre class="mermaid">flowchart LR
+  V(["voice"]) --> L["Lavoix<br><small>speech &rarr; text</small>"]
+  L --> S["Seal<br><small>intent &rarr; a card</small>"]
+  S --> O["Otter<br><small>card &rarr; a queued job</small>"]
+  O --> W(["isolated workspace<br><small>agent runs, output streams back</small>"])
+  W --> S</pre>
+    </div>
+
+    <div class="svc">
+      <div class="card">
+        <h3>Otter</h3>
+        <p>The orchestration engine. Queues and schedules prompts, runs each in an
+        isolated workspace, streams events, keeps full job history, and reports
+        token usage and cost per job.</p>
+        <span class="stack">Rust · axum · Postgres · Redis</span>
+        <div class="btn-row">
+          <a class="btn primary" href="https://otter-psi.vercel.app">Live</a>
+          <a class="btn" href="https://github.com/Unchained-Labs/otter">Source</a>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Lavoix</h3>
+        <p>Speech in and out. Provider-based STT/TTS behind a FastAPI surface, so
+        the voice layer is swappable rather than welded to one vendor.</p>
+        <span class="stack">Python · FastAPI</span>
+        <div class="btn-row">
+          <a class="btn primary" href="https://lavoix.vercel.app">Live</a>
+          <a class="btn" href="https://github.com/Unchained-Labs/lavoix">Source</a>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Seal</h3>
+        <p>The frontend. A voice-first Kanban over Otter's queue — capture a prompt,
+        watch the job move, read the build output as it happens.</p>
+        <span class="stack">React · TypeScript</span>
+        <div class="btn-row">
+          <a class="btn primary" href="https://seal-nine-sigma.vercel.app">Live</a>
+          <a class="btn" href="https://github.com/Unchained-Labs/seal">Source</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:var(--ul-space-8)">
+      <p><strong>Otter is why the rest of this org exists.</strong> Once you are
+      running agent jobs by the hundred, correctness and cost stop being someone
+      else's problem — and there was nothing to reach for. So we built it.</p>
+      <div class="btn-row">
+        <a class="btn primary" href="https://kymatics.vercel.app">kymatics.vercel.app</a>
+        <a class="btn" href="https://github.com/Unchained-Labs/kymatics">The umbrella repo</a>
+      </div>
+    </div>
   </div>
 </section>
 
 <section id="pipeline">
   <div class="wrap">
-    <p class="label">How they fit</p>
+    <p class="label">The tooling · how they fit</p>
     <h2>Four questions you currently cannot answer</h2>
+    <p class="lead narrow">Running many agents in parallel is a capability most
+    people now have. Running them <em>affordably and correctly</em> is a systems
+    problem, and it was mostly unbuilt — nothing priced a workflow before it ran,
+    nothing checked whether verifiers were independent, nothing linted the spec for
+    the handful of mistakes everyone makes.</p>
     <div class="pipeline">
       <pre class="mermaid">flowchart LR
   H["workflow-hub<br><small>get a graph</small>"] --> G["graphlint<br><small>is it correct?</small>"]
@@ -126,6 +211,8 @@
   <div class="wrap">
     <p class="label">The tools</p>
     <h2>Five, and a brand system</h2>
+    <p class="lead narrow">Each one was written to fix something we hit shipping
+    Kymatics. Every video below is real CLI output.</p>
   </div>
 </section>
 
@@ -160,7 +247,7 @@
   <article class="tool">
     <div class="tool-head">
       <h2>preflight</h2>
-      <span class="stat-line">49 tests · GitHub Action</span>
+      <span class="stat-line">53 tests · GitHub Action</span>
     </div>
     <div class="tool-grid">
       <div>
@@ -213,7 +300,7 @@
   <article class="tool">
     <div class="tool-head">
       <h2>authsweep</h2>
-      <span class="stat-line">51 tests · zero tokens · SARIF</span>
+      <span class="stat-line">58 tests · zero tokens · SARIF</span>
     </div>
     <div class="tool-grid">
       <div>
@@ -290,6 +377,72 @@
 
 </div>
 
+<section id="dogfood">
+  <div class="wrap">
+    <p class="label">Dogfooding</p>
+    <h2>What happened when we pointed them at our own product</h2>
+    <p class="lead narrow">The honest test of internal tooling is whether it
+    survives contact with the thing it was built for. We ran all five against
+    Kymatics and wrote down every result, negatives included — a report where all
+    five turned out to help would only tell you the author wanted them to.</p>
+
+    <div class="verdict-wrap" style="margin-top:var(--ul-space-8)">
+      <table class="verdict">
+        <thead>
+          <tr><th>Tool</th><th>Target</th><th class="mark"></th><th>Outcome</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>authsweep</td><td>Lavoix</td><td class="mark">✅</td>
+            <td>Found two unauthenticated endpoints doing paid provider work — an
+            upload goes straight to a speech provider that bills per second.</td>
+          </tr>
+          <tr>
+            <td>preflight</td><td>Otter</td><td class="mark">✅</td>
+            <td><code>preflight models --format otter-env</code> now feeds Otter's
+            price list, so cost is quoted from one CI-checked table instead of two.
+            The unbuilt half — Otter's measured spans calibrating preflight's
+            generic profiles — is the highest-value next step.</td>
+          </tr>
+          <tr>
+            <td>decorrelate</td><td>Otter evals</td><td class="mark">➖</td>
+            <td>Nothing to add. Otter's evals already score against an executable
+            oracle, which is exactly what decorrelate would have told it to do.</td>
+          </tr>
+          <tr>
+            <td>graphlint</td><td>Otter jobs</td><td class="mark">➖</td>
+            <td>Does not apply. An Otter job is a single prompt in one workspace,
+            and a single-prompt job is not a graph.</td>
+          </tr>
+          <tr>
+            <td>authsweep</td><td>Otter</td><td class="mark">❌</td>
+            <td>Blocked. Otter is axum, and authsweep does not read Rust, so the
+            control plane is invisible to it.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note warn" style="margin-top:var(--ul-space-8)">
+      <p><strong>Two of five helped — and the most valuable result was not an
+      integration at all.</strong> Pointing a security scanner at our own code found
+      <em>two bugs in the scanner</em>, both of the one class its own threat model
+      calls the worst: a false clean.</p>
+      <p>Against Lavoix it read <code>Depends(get_service)</code> — dependency
+      injection — as an authorization guard, and reported "every route has an
+      authorization check" over two open billing endpoints. Against Otter it found
+      no routes at all, because it cannot read Rust, and reported <em>that</em> as a
+      pass too.</p>
+      <p>Neither was reachable from its fixtures, because the fixtures were written
+      by the same person as the rules and inherited the same blind spots. Real code
+      had shapes the author did not think to invent.</p>
+      <div class="btn-row">
+        <a class="btn primary" href="https://github.com/Unchained-Labs/.github/blob/main/docs/kymatics-and-the-graph-tools.md">Read the full analysis</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="argument">
   <div class="wrap">
     <p class="label">The argument</p>
@@ -331,7 +484,12 @@
       work around it.</p>
       <p><strong><code>preflight</code>'s defaults are generic.</strong>
       Uncalibrated, trust the shape — which stage dominates — far more than the
-      absolute figure.</p>
+      absolute figure. Calibrating it against Otter's measured spans is the
+      obvious fix and is not built yet.</p>
+      <p><strong><code>authsweep</code> reads JS/TS and Python only.</strong> A
+      Rust, Go, Ruby or Java service is invisible to it. It now says so loudly
+      instead of exiting green on an unscanned codebase — but that is a warning, not
+      coverage.</p>
     </div>
   </div>
 </section>
@@ -353,15 +511,19 @@
         <h4>Org</h4>
         <a href="https://github.com/Unchained-Labs">GitHub</a>
         <a href="https://unchained-labs.github.io/branding/">Brand system</a>
-        <a href="https://github.com/Unchained-Labs/.github/blob/main/CONTRIBUTING.md">Contributing</a>
-        <a href="https://github.com/Unchained-Labs/.github/blob/main/SECURITY.md">Security</a>
       </div>
       <div>
-        <h4>Also here</h4>
-        <a href="https://github.com/Unchained-Labs/kymatics">Kymatics</a>
-        <a href="https://github.com/Unchained-Labs/otter">Otter</a>
-        <a href="https://github.com/Unchained-Labs/lavoix">Lavoix</a>
-        <a href="https://github.com/Unchained-Labs/seal">Seal</a>
+        <h4>Kymatics</h4>
+        <a href="https://kymatics.vercel.app">kymatics.vercel.app</a>
+        <a href="https://github.com/Unchained-Labs/otter">Otter — the engine</a>
+        <a href="https://github.com/Unchained-Labs/lavoix">Lavoix — speech</a>
+        <a href="https://github.com/Unchained-Labs/seal">Seal — the frontend</a>
+      </div>
+      <div>
+        <h4>Reading</h4>
+        <a href="https://github.com/Unchained-Labs/.github/blob/main/docs/kymatics-and-the-graph-tools.md">Do the tools help Kymatics?</a>
+        <a href="https://github.com/Unchained-Labs/.github/blob/main/CONTRIBUTING.md">Contributing</a>
+        <a href="https://github.com/Unchained-Labs/.github/blob/main/SECURITY.md">Security</a>
       </div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:var(--ul-space-4);align-items:center;border-top:1px solid var(--ul-line);padding-top:var(--ul-space-6)">
@@ -386,7 +548,7 @@
 </script>
 
 <script>
-  // Six autoplaying videos would be ~1.9MB on load, so the per-tool ones use
+  // Seven autoplaying videos would be ~2.4MB on load, so the per-tool ones use
   // preload="none" and a poster, and only start once they are actually on screen.
   // Anyone who has asked for reduced motion gets the posters and nothing moving.
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
