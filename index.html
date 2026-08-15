@@ -88,8 +88,8 @@
     pointed the tools <a href="#dogfood">back at our own stack</a> they found real
     bugs in the product <em>and</em> two in the security scanner itself.</p>
     <ul class="badges">
-      <li class="badge accent">1 product · 5 tools</li>
-      <li class="badge up">284 tests passing</li>
+      <li class="badge accent">1 product · 6 tools</li>
+      <li class="badge up">351 tests passing</li>
       <li class="badge up">CI green on every repo</li>
       <li class="badge">MIT</li>
       <li class="badge warn">alpha</li>
@@ -186,7 +186,10 @@
   H["workflow-hub<br><small>get a graph</small>"] --> G["graphlint<br><small>is it correct?</small>"]
   G --> P["preflight<br><small>what will it cost?</small>"]
   P --> R(["run it"])
-  R --> D["decorrelate<br><small>were the verifiers independent?</small>"]
+  R --> L["localflow<br><small>what is it doing, what did it spend?</small>"]
+  L --> D["decorrelate<br><small>were the verifiers independent?</small>"]
+  L -.->|the graph that ran| G
+  L -.->|measured cache rate| P
   D -.->|tune the lenses| G
   A["authsweep<br><small>a graph worth running</small>"] --> G</pre>
     </div>
@@ -194,15 +197,22 @@
       <div class="card"><h3>Before you write it</h3><p>Start from a graph that already works, instead of the shape you happen to reach for first.</p></div>
       <div class="card"><h3>Before you merge it</h3><p>Does it contain the mistakes everyone makes? A barrier that waits for nothing, three verifiers that fail together, a cycle that never converges.</p></div>
       <div class="card"><h3>Before you run it</h3><p>What will this cost, and which stage dominates? Most people size the fan-out and are surprised by verification.</p></div>
+      <div class="card"><h3>While it runs</h3><p>Which session is working, which is waiting on you, and which one has quietly spent more than the rest of the week combined?</p></div>
       <div class="card"><h3>After you run it</h3><p>Did the verification you paid for actually buy anything, or did you pay three times for one check?</p></div>
     </div>
     <div class="note" style="margin-top:var(--ul-space-6)">
       <p><strong>The family is self-consistent, and that is enforced rather than
       claimed.</strong> <code>authsweep</code> emits a verify graph that
-      <code>graphlint</code> lints clean and <code>preflight</code> prices at 25
-      agents for $0.36, and every workflow in <code>workflow-hub</code> passes
-      <code>graphlint</code> with zero findings. CI fails if any of that stops
-      being true.</p>
+      <code>graphlint</code> lints clean and <code>preflight</code> prices; every
+      workflow in <code>workflow-hub</code> passes <code>graphlint</code> with zero
+      findings; and <code>localflow</code> holds the same price table as
+      <code>preflight</code>, asserted string for string. CI fails if any of that
+      stops being true.</p>
+      <p><strong>And the loop now closes.</strong> <code>localflow</code>
+      reconstructs the fan-out a session <em>actually performed</em> and hands it
+      back to <code>graphlint</code>, so the linter finally sees graphs that ran
+      rather than only the ones people wrote down — and it measures the cache hit
+      rate <code>preflight</code> could not derive.</p>
     </div>
   </div>
 </section>
@@ -210,13 +220,41 @@
 <section id="tools" style="padding-bottom:0">
   <div class="wrap">
     <p class="label">The tools</p>
-    <h2>Five, and a brand system</h2>
+    <h2>Six, and a brand system</h2>
     <p class="lead narrow">Each one was written to fix something we hit shipping
     Kymatics. Every video below is real CLI output.</p>
   </div>
 </section>
 
 <div class="wrap">
+
+  <article class="tool">
+    <div class="tool-head">
+      <h2>localflow</h2>
+      <span class="stat-line">62 tests · zero runtime deps · reads only your own disk</span>
+    </div>
+    <div class="tool-grid">
+      <div>
+        <p><strong>A Kanban board for the Claude Code sessions already running on
+        your machine.</strong> Live lanes, cost priced from real token counts, and
+        the fan-out that actually happened.</p>
+        <p class="muted">There is deliberately no "done" lane: nothing on your disk
+        records whether a session achieved what it was asked, only that it stopped.
+        Getting the cost right took two corrections — usage is re-emitted as a
+        message streams, and a cache write is billed by how long it lives — both
+        checked against the figure the CLI reports for a run it just did.</p>
+        <div class="btn-row">
+          <a class="btn primary" href="https://unchained-labs.github.io/localflow/">Docs</a>
+          <a class="btn" href="https://github.com/Unchained-Labs/localflow">Source</a>
+        </div>
+      </div>
+      <figure class="demo">
+        <video src="assets/video/localflow.mp4" poster="assets/video/localflow-poster.jpg"
+               loop muted playsinline preload="none" data-lazyplay
+               aria-label="localflow terminal demo"></video>
+      </figure>
+    </div>
+  </article>
 
   <article class="tool">
     <div class="tool-head">
@@ -247,7 +285,7 @@
   <article class="tool">
     <div class="tool-head">
       <h2>preflight</h2>
-      <span class="stat-line">77 tests · GitHub Action</span>
+      <span class="stat-line">82 tests · GitHub Action</span>
     </div>
     <div class="tool-grid">
       <div>
@@ -401,6 +439,23 @@
             upload goes straight to a speech provider that bills per second.</td>
           </tr>
           <tr>
+            <td>localflow</td><td>Otter</td><td class="mark">✅</td>
+            <td>Otter counted <strong>48× fewer input tokens</strong> than a cached
+            run actually sends, and reported <strong>12× less</strong> than it
+            cost — it read <code>input_tokens</code> and ignored the prompt cache
+            entirely. On an agentic workload the cache <em>is</em> the input.
+            <a href="https://github.com/Unchained-Labs/otter/pull/20">PR open</a>,
+            checked against the provider's own figure.</td>
+          </tr>
+          <tr>
+            <td>localflow</td><td>preflight</td><td class="mark">✅</td>
+            <td>A cache write is billed by how long it lives — 2× input for the
+            one-hour tier against 1.25× for five minutes. preflight had one
+            multiplier, so it was a third light on every cached workload. And the
+            cache hit rate its docs called underivable is now measured and written
+            back.</td>
+          </tr>
+          <tr>
             <td>preflight</td><td>Otter</td><td class="mark">✅</td>
             <td>Both directions. <code>preflight models --format otter-env</code>
             feeds Otter's price list, so cost is quoted from one CI-checked table
@@ -431,10 +486,15 @@
     </div>
 
     <div class="note warn" style="margin-top:var(--ul-space-8)">
-      <p><strong>Three of five help — and the most valuable result was still not an
-      integration.</strong> Pointing a security scanner at our own code found
-      <em>two bugs in the scanner</em>, both of the one class its own threat model
-      calls the worst: a false clean.</p>
+      <p><strong>Four of six help, and the newest one paid for itself twice.</strong>
+      Pointing localflow at the same machine that runs everything else found a
+      third-of-the-bill error in preflight and then found Otter ignoring
+      prompt-cache traffic altogether. Both were caught the same way:
+      <code>claude -p --output-format json</code> reports what a run actually cost,
+      which turns a guess into something you can check.</p>
+      <p>The most valuable result was still not an integration. Pointing a security
+      scanner at our own code found <em>two bugs in the scanner</em>, both of the
+      one class its own threat model calls the worst: a false clean.</p>
       <p>Against Lavoix it read <code>Depends(get_service)</code> — dependency
       injection — as an authorization guard, and reported "every route has an
       authorization check" over two open billing endpoints. Against Otter it found
@@ -516,6 +576,7 @@
     <div class="foot-grid" style="margin-bottom:var(--ul-space-8)">
       <div>
         <h4>Tools</h4>
+        <a href="https://unchained-labs.github.io/localflow/">localflow</a>
         <a href="https://unchained-labs.github.io/graphlint/">graphlint</a>
         <a href="https://unchained-labs.github.io/preflight/">preflight</a>
         <a href="https://unchained-labs.github.io/decorrelate/">decorrelate</a>
