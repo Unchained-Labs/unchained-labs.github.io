@@ -220,7 +220,7 @@
 <section id="tools" style="padding-bottom:0">
   <div class="wrap">
     <p class="label">The tools</p>
-    <h2>Seven, and a brand system</h2>
+    <h2>Nine, and a brand system</h2>
     <p class="lead narrow">Each one was written to fix something we hit shipping
     Kymatics. Every video below is real output — CLI, or the live app on real data.</p>
   </div>
@@ -261,6 +261,32 @@
 
   <article class="tool">
     <div class="tool-head">
+      <h2>soif</h2>
+      <span class="stat-line">65 tests · 49 models · versioned factors</span>
+    </div>
+    <div class="tool-grid">
+      <div>
+        <p><strong>The estimator underneath soif-app.</strong> Model and token
+        counts in, an honest low/mid/high water figure out, against a documented
+        and versioned methodology rather than a single confident number.</p>
+        <p class="muted">Operational and embodied water are reported separately,
+        and the hosting profile is location-based — the same workload on a
+        different cloud and region is a different answer, so it is an input.</p>
+        <div class="btn-row">
+          <a class="btn primary" href="https://unchained-labs.github.io/soif/">Docs</a>
+          <a class="btn" href="https://github.com/Unchained-Labs/soif">Source</a>
+        </div>
+      </div>
+      <figure class="demo">
+        <video src="assets/video/soif.mp4" poster="assets/video/soif-poster.jpg"
+               loop muted playsinline preload="none" data-lazyplay
+               aria-label="soif terminal demo"></video>
+      </figure>
+    </div>
+  </article>
+
+  <article class="tool">
+    <div class="tool-head">
       <h2>localflow</h2>
       <span class="stat-line">62 tests · zero runtime deps · reads only your own disk</span>
     </div>
@@ -283,6 +309,32 @@
         <video src="assets/video/localflow.mp4" poster="assets/video/localflow-poster.jpg"
                loop muted playsinline preload="none" data-lazyplay
                aria-label="localflow terminal demo"></video>
+      </figure>
+    </div>
+  </article>
+
+  <article class="tool">
+    <div class="tool-head">
+      <h2>cortex</h2>
+      <span class="stat-line">207 tests · runs on your own model</span>
+    </div>
+    <div class="tool-grid">
+      <div>
+        <p><strong>A folder of notes and sources, turned into a private brain you
+        can chat with.</strong> Indexing, retrieval and the chat surface all run on
+        your own machine, against whichever model you point it at.</p>
+        <p class="muted">Nothing is uploaded and nothing calls us: the brain is a
+        directory on your disk, and you can read it with a text editor after the
+        fact.</p>
+        <div class="btn-row">
+          <a class="btn primary" href="https://unchained-labs.github.io/cortex/">Docs</a>
+          <a class="btn" href="https://github.com/Unchained-Labs/cortex">Source</a>
+        </div>
+      </div>
+      <figure class="demo">
+        <video src="assets/video/cortex.mp4" poster="assets/video/cortex-poster.jpg"
+               loop muted playsinline preload="none" data-lazyplay
+               aria-label="cortex demo"></video>
       </figure>
     </div>
   </article>
@@ -655,7 +707,7 @@
 </script>
 
 <script>
-  // Seven autoplaying videos would be ~2.4MB on load, so the per-tool ones use
+  // Nine autoplaying videos would be several MB on load, so the per-tool ones use
   // preload="none" and a poster, and only start once they are actually on screen.
   // Anyone who has asked for reduced motion gets the posters and nothing moving.
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
